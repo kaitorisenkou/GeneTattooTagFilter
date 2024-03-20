@@ -61,8 +61,10 @@ namespace GeneTattooTagFilter {
 
         public static IEnumerable<CodeInstruction> Patch_NotifyGenesChanged(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
             var instructionList = instructions.ToList();
-            int stage = 0;
             MethodInfo targetInfo = AccessTools.Method(typeof(PawnStyleItemChooser), nameof(PawnStyleItemChooser.RandomBeardFor));
+            Type innerType = typeof(Pawn_GeneTracker).GetNestedTypes(AccessTools.all).FirstOrDefault((Type t) => t.Name.Contains("<>c__DisplayClass"));
+
+            int stage = 0;
             for (int i = 0; i < instructionList.Count; i++) {
                 if (stage > 0 && instructionList[i].opcode == OpCodes.Ldloc_0) {
                     var oldLabels = new List<Label>(instructionList[i].labels);
@@ -70,7 +72,8 @@ namespace GeneTattooTagFilter {
                     instructionList[i].labels = new List<Label> { newLabel };
                     var newInstructions = new CodeInstruction[] {
                         new CodeInstruction(OpCodes.Ldloc_0),
-                        new CodeInstruction(OpCodes.Ldfld,AccessTools.Field(AccessTools.TypeByName("RimWorld.Pawn_GeneTracker+<>c__DisplayClass82_0"),"addedOrRemovedGene")),
+                        //new CodeInstruction(OpCodes.Ldfld,AccessTools.Field(AccessTools.TypeByName("RimWorld.Pawn_GeneTracker+<>c__DisplayClass82_0"),"addedOrRemovedGene")),
+                        new CodeInstruction(OpCodes.Ldfld,AccessTools.Field(innerType,"addedOrRemovedGene")),
                         new CodeInstruction(OpCodes.Ldarg_0),
                         new CodeInstruction(OpCodes.Call,AccessTools.Method(typeof(GeneTattooTagFilter),nameof(GeneAllowsTattoo))),
                         new CodeInstruction(OpCodes.Brtrue_S,newLabel),

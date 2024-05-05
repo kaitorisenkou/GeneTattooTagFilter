@@ -30,6 +30,15 @@ namespace GeneTattooTagFilter {
                 new HarmonyMethod(typeof(GeneTattooTagFilter), nameof(Patch_NotifyGenesChanged), null),
                 null
                 );
+            if (!AccessTools.AllAssemblies().Any(t => t.FullName.Contains("AlienRace"))) {
+                harmony.Patch(
+                AccessTools.Method(typeof(PawnStyleItemChooser), "TotalStyleItemLikelihood", null, null),
+                null,
+                new HarmonyMethod(typeof(GeneTattooTagFilter), nameof(Patch_TotalStyleItemLikelihood), null),
+                null,
+                null
+                );
+            }
             Log.Message("[GeneTattooTagFilter] Harmony patch complete!");
         }
 
@@ -57,6 +66,9 @@ namespace GeneTattooTagFilter {
             }
             __result = true;
             return false;
+        }
+        public static void Patch_TotalStyleItemLikelihood(ref float __result) {
+            __result += float.Epsilon;
         }
 
         public static IEnumerable<CodeInstruction> Patch_NotifyGenesChanged(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
